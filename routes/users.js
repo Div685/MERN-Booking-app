@@ -21,7 +21,7 @@ router.route("/new").post((req, res) => {
           httpOnly: true,
         })
         .status(201)
-        .json(othersData);
+        .json({status: '201', user:othersData, token: token});
     })
     .catch((err) => res.status(400).json("Err: " + err));
 });
@@ -31,8 +31,6 @@ const login = async (req, res, next) => {
     const userName = req.body.userName;
 
     const user = await User.findOne({ userName: userName });
-
-    console.log(user.password);
 
     if (!user) return res.status(404).json("User Not Found");
 
@@ -49,12 +47,28 @@ const login = async (req, res, next) => {
         httpOnly: true,
       })
       .status(200)
-      .json(userData);
+      .json({logged_in: true, user:userData, token: token});
   } catch (err) {
     next(err);
   }
 };
 
+const autoLogin = async (req, res, next) => {
+  try {
+  const id = req.body._id;
+
+  const user = await User.findOne({ _id: id});
+
+  if(!user) return res.status(404).json('User Not Found');
+  const { ...userData } = user._doc;
+
+  res.status(200).json({logged_in: true, user: userData}); 
+}catch(err){
+  next({err: 'token is wrong or expired, login again' + err});
+  }
+}
+
+router.route("/login/auto_login").post(autoLogin);
 router.route("/login").post(login);
 
 module.exports = router;

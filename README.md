@@ -1,4 +1,4 @@
-#Booking Appointment API built with MERN Stack.
+# Booking Appointment API built with MERN Stack.
 
 ## About the Project
 
